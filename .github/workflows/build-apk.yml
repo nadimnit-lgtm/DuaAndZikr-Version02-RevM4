@@ -1,11 +1,4 @@
-from pathlib import Path
-import zipfile
-
-base = Path("/mnt/data/github-workflow-hotfix03")
-workflow_dir = base / ".github" / "workflows"
-workflow_dir.mkdir(parents=True, exist_ok=True)
-
-workflow = r'''name: Build Dua & Zikr APK
+name: Build Dua & Zikr APK
 
 on:
   push:
@@ -190,10 +183,7 @@ jobs:
           set -euo pipefail
           cd "$PROJECT_DIR"
 
-          if [ -n "${RELEASE_KEYSTORE_BASE64:-}" ] && \
-             [ -n "${RELEASE_KEYSTORE_PASSWORD:-}" ] && \
-             [ -n "${RELEASE_KEY_ALIAS:-}" ] && \
-             [ -n "${RELEASE_KEY_PASSWORD:-}" ]; then
+          if [ -n "${RELEASE_KEYSTORE_BASE64:-}" ] &&              [ -n "${RELEASE_KEYSTORE_PASSWORD:-}" ] &&              [ -n "${RELEASE_KEY_ALIAS:-}" ] &&              [ -n "${RELEASE_KEY_PASSWORD:-}" ]; then
             echo "$RELEASE_KEYSTORE_BASE64" | base64 --decode > azkar-release.jks
             echo "HAS_RELEASE_SIGNING=true" >> "$GITHUB_ENV"
             echo "Release signing key prepared."
@@ -280,15 +270,3 @@ jobs:
             AzkarTvDisplay/app/build/outputs/apk/release/*.apk
           if-no-files-found: error
           retention-days: 30
-'''
-
-(workflow_dir / "build-apk.yml").write_text(workflow, encoding="utf-8")
-
-zip_path = Path("/mnt/data/github-workflows-build-apk-hotfix03.zip")
-if zip_path.exists():
-    zip_path.unlink()
-
-with zipfile.ZipFile(zip_path, "w", compression=zipfile.ZIP_DEFLATED) as z:
-    z.write(workflow_dir / "build-apk.yml", ".github/workflows/build-apk.yml")
-
-zip_path
